@@ -171,6 +171,11 @@ namespace CommonMark.Syntax
         public FencedCodeData FencedCodeData { get; set; }
 
         /// <summary>
+        /// Gets or sets additional properties that only apply to Azure alert blocks.
+        /// </summary>
+        public AzureAlertData AzureAlertData { get; set; }
+
+        /// <summary>
         /// Gets or sets the heading level (as in <c>&lt;h1&gt;</c> or <c>&lt;h2&gt;</c>).
         /// </summary>
         public int HeaderLevel { get; set; }

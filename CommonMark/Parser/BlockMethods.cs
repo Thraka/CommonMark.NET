@@ -16,6 +16,7 @@ namespace CommonMark.Parser
         {
             return (parent_type == BlockTag.Document ||
                      parent_type == BlockTag.BlockQuote ||
+                     parent_type == BlockTag.AzureBlockQoute ||
                      parent_type == BlockTag.ListItem ||
                      (parent_type == BlockTag.List && child_type == BlockTag.ListItem));
         }
@@ -410,7 +411,7 @@ namespace CommonMark.Parser
         // Process one line at a time, modifying a block.
         // Returns 0 if successful.  curptr is changed to point to
         // the currently open block.
-        public static void IncorporateLine(LineInfo line, ref Block curptr)
+        public static void IncorporateLine(LineInfo line, ref Block curptr, CommonMarkSettings settings)
         {
             var ln = line.Line;
 
@@ -447,6 +448,7 @@ namespace CommonMark.Parser
                 switch (container.Tag)
                 {
                     case BlockTag.BlockQuote:
+                    case BlockTag.AzureBlockQoute:
                         {
                             if (indent <= 3 && curChar == '>')
                             {
@@ -592,7 +594,28 @@ namespace CommonMark.Parser
                     if (ln[offset] == ' ')
                         offset++;
 
-                    container = CreateChildBlock(container, line, BlockTag.BlockQuote, first_nonspace);
+                    // special rules for our azure stuff
+                    string substring = ln.Substring(offset).ToLower();
+                    if (substring.StartsWith("[azure.video]"))
+                    {
+                        container = CreateChildBlock(container, line, BlockTag.AzureVideoBlockQoute, first_nonspace);
+                    }
+                    else if (substring.StartsWith("[azure.") && substring.Contains("]") && 0 != (settings.AdditionalFeatures & CommonMarkAdditionalFeatures.AzureBlocks))
+                    {
+                        string style = substring.Substring(7, substring.IndexOf(']') - 7);
+                        offset += 7 + style.Length + 1 + 1;
+                        //line.LineOffset = offset;
+                        container = CreateChildBlock(container, line, BlockTag.AzureBlockQoute, first_nonspace);
+                        container.AzureAlertData = new AzureAlertData();
+                        container.AzureAlertData.AlertStyle = style;
+
+                    }
+
+                    // Create a normal block container
+                    else
+                    {
+                        container = CreateChildBlock(container, line, BlockTag.BlockQuote, first_nonspace);
+                    }
 
                 }
                 else if (curChar == '#' && 0 != (matched = Scanner.scan_atx_header_start(ln, first_nonspace, ln.Length, out i)))
@@ -710,6 +733,8 @@ namespace CommonMark.Parser
             // on an empty list item.
             container.IsLastLineBlank = (blank &&
                                           container.Tag != BlockTag.BlockQuote &&
+                                          container.Tag != BlockTag.AzureBlockQoute &&
+                                          container.Tag != BlockTag.AzureVideoBlockQoute &&
                                           container.Tag != BlockTag.SETextHeader &&
                                           container.Tag != BlockTag.FencedCode &&
                                           !(container.Tag == BlockTag.ListItem &&

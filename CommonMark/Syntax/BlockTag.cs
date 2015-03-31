@@ -20,6 +20,17 @@ namespace CommonMark.Syntax
         BlockQuote,
 
         /// <summary>
+        /// A block-qoute element styled for Azure rendering.
+        /// </summary>
+        AzureBlockQoute,
+
+
+        /// <summary>
+        /// A block-qoute element styled for a video.
+        /// </summary>
+        AzureVideoBlockQoute,
+
+        /// <summary>
         /// A list element. Will contain nested blocks with type of <see cref="BlockTag.ListItem"/>.
         /// </summary>
         List,

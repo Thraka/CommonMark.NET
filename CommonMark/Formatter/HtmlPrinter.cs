@@ -250,6 +250,18 @@ namespace CommonMark.Formatter
                         }
                         break;
 
+                    case BlockTag.AzureBlockQoute:
+                        writer.EnsureLine();
+                        writer.WriteConstant("<div");
+                        if (trackPositions) PrintPosition(writer, block);
+                        writer.WriteLineConstant(string.Format(" class=\"wa-note wa-note-{0}\"><span class=\"wa-icon wa-icon-{0}\"></span><h5><a name=\"{0}\"></a>{1}:</h5>", block.AzureAlertData.AlertStyle, block.AzureAlertData.AlertStyle.ToUpper()));
+                        
+                        stackLiteral = "</div>";
+                        stackTight = false;
+                        visitChildren = true;
+                        break;
+
+                    case BlockTag.AzureVideoBlockQoute:
                     case BlockTag.BlockQuote:
                         writer.EnsureLine();
                         writer.WriteConstant("<blockquote");
@@ -317,7 +329,7 @@ namespace CommonMark.Formatter
                     case BlockTag.IndentedCode:
                     case BlockTag.FencedCode:
                         writer.EnsureLine();
-                        writer.WriteConstant("<pre><code");
+                        writer.WriteConstant("<pre");
                         if (trackPositions) PrintPosition(writer, block);
 
                         var info = block.FencedCodeData == null ? null : block.FencedCodeData.Info;
@@ -333,7 +345,7 @@ namespace CommonMark.Formatter
                         }
                         writer.Write('>');
                         EscapeHtml(block.StringContent, writer);
-                        writer.WriteLineConstant("</code></pre>");
+                        writer.WriteLineConstant("</pre>");
                         break;
 
                     case BlockTag.HtmlBlock:

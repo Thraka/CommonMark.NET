@@ -21,6 +21,16 @@ namespace CommonMark
         StrikethroughTilde = 1,
 
         /// <summary>
+        /// The parser will understand github styled tables.
+        /// </summary>
+        GithubTables = 2,
+
+        /// <summary>
+        /// The parser will recognize Azure publishing specific blocks.
+        /// </summary>
+        AzureBlocks = 4,
+
+        /// <summary>
         /// All additional features are enabled.
         /// </summary>
         All = 0x7FFFFFFF
